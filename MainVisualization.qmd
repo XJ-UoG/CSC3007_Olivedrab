@@ -4,20 +4,30 @@ format: html
 editor: visual
 ---
 
+```{r setup, include=FALSE}
+# Set global chunk options
+knitr::opts_chunk$set(fig.align = "center", fig.width = 12, fig.height = 8)
+```
+
 ```{r}
+#| label: required-packages
+#| warning: false
+
 # Load necessary libraries
+library(knitr)
 library(ggplot2)
 library(dplyr)
 library(readr)
 library(tidyr)
 library(ggnewscale)
 library(RColorBrewer)
+library(scales)
 ```
 
 ```{r}
-# Load the dataset
+#| label: load-dataset
+
 cancer_data <- read_csv("cancer-dataset.csv")
-#show head of the dataset
 head(cancer_data)
 ```
 
@@ -26,93 +36,168 @@ head(cancer_data)
 cancer_data_2019 <- cancer_data %>%
   filter(year == 2019, measure_name == "Deaths", age_name == "All ages") %>%
   select(cause_name, sex_name, val)
+```
 
+```{r}
 # Remove "Total cancers" and "Total excl. non-melanoma" from the dataset
 cancer_data_2019 <- cancer_data_2019 %>%
       filter(!cause_name %in% c("Total cancers", "Total Cancers excluding Non-melanoma skin cancer"))
+```
+
+```{r}
+# TODO:  Find out about proper classifications of cancer to help support our groupings and change it if necessary
 
 # Define new cancer groups
 cancer_data_2019 <- cancer_data_2019 %>%
   mutate(cause_group = case_when(
-    cause_name %in% c("Eye cancer", "Soft tissue and other extraosseous sarcomas", "Malignant neoplasm of bone and articular cartilage", "Neuroblastoma and other peripheral nervous cell tumors") ~ "Rare cancers",
-    cause_name %in% c("Breast cancer", "Cervical cancer", "Uterine cancer", "Prostate cancer", "Ovarian cancer", "Testicular cancer") ~ "Reproductive cancers",
-    cause_name %in% c("Colon and rectum cancer", "Stomach cancer", "Esophageal cancer") ~ "Digestive system cancers",
-    cause_name %in% c("Lip and oral cavity cancer", "Nasopharynx cancer", "Other pharynx cancer", "Larynx cancer") ~ "Head and neck cancers",
-    cause_name %in% c("Gallbladder and biliary tract cancer", "Liver cancer", "Pancreatic cancer") ~ "Liver and pancreas cancers",
-    cause_name %in% c("Malignant skin melanoma", "Non-melanoma skin cancer") ~ "Skin cancers",
-    cause_name %in% c("Kidney cancer", "Bladder cancer") ~ "Urinary system cancers",
-    cause_name %in% c("Brain and central nervous system cancer") ~ "Brain cancers",
-    cause_name %in% c("Thyroid cancer") ~ "Thyroid cancers",
+    cause_name %in% c("Soft tissue and other extraosseous sarcomas") ~ "Soft tissue",
+    cause_name %in% c("Neuroblastoma and other peripheral nervous cell tumors") ~ "Nerve",
+    cause_name %in% c("Breast cancer", "Cervical cancer", "Uterine cancer", "Prostate cancer", "Ovarian cancer", "Testicular cancer") ~ "Reproductive",
+    cause_name %in% c("Colon and rectum cancer", "Stomach cancer", "Esophageal cancer") ~ "Digestive system",
+    cause_name %in% c("Lip and oral cavity cancer", "Nasopharynx cancer", "Other pharynx cancer", "Larynx cancer") ~ "Head and neck",
+    cause_name %in% c("Gallbladder and biliary tract cancer", "Liver cancer", "Pancreatic cancer") ~ "Liver and pancreas",
+    cause_name %in% c("Malignant skin melanoma", "Non-melanoma skin cancer") ~ "Skin",
+    cause_name %in% c("Kidney cancer", "Bladder cancer") ~ "Urinary system",
+    cause_name %in% c("Brain and central nervous system cancer") ~ "Brain",
+    cause_name %in% c("Thyroid cancer") ~ "Thyroid",
     cause_name %in% c("Mesothelioma") ~ "Mesothelioma",
     cause_name %in% c("Hodgkin lymphoma", "Non-Hodgkin lymphoma") ~ "Lymphomas",
-    cause_name %in% c("Multiple myeloma") ~ "Multiple myeloma",
+    cause_name %in% c("Multiple myeloma") ~ "Multiple Myeloma",
     cause_name %in% c("Leukemia") ~ "Leukemia",
-    cause_name %in% c("Tracheal, bronchus, and lung cancer") ~ "Lung cancer",
-    cause_name %in% c("Other malignant neoplasms", "Other neoplasms") ~ "Other cancers",
+    cause_name %in% c("Tracheal, bronchus, and lung cancer") ~ "Lung",
+    cause_name %in% c("Other malignant neoplasms", "Other neoplasms") ~ "Others (Neoplasms)",
+    cause_name %in% c("Malignant neoplasm of bone and articular cartilage") ~ "Bone and cartilage",
+    cause_name %in% c("Eye cancer") ~ "Eye",
     TRUE ~ cause_name
   ))
+```
 
-# TODO:  Find out about proper classifications of cancer to help support our groupings and change it if necessary
-
-
-# TODO: Create the sequential color scheme for both female and male (reference the picture sent in the group) DONE 
-
-
+```{r}
 # Group by new cancer groups and sum the values
-cancer_data_grouped <- cancer_data_2019 %>%
-  group_by(cause_group, sex_name) %>%
-  summarise(val = sum(val, na.rm = TRUE))
-
+cancer_data_grouped <- cancer_data_2019 |>
+  group_by(cause_group, sex_name) |>
+  summarise(val = sum(val, na.rm = TRUE), .groups = 'drop')
 ```
 
 ```{r}
 # Pivot the data
-cancer_data_long <- cancer_data_grouped %>%
+cancer_data_long <- cancer_data_grouped|>
   pivot_wider(names_from = sex_name, values_from = val, values_fill = list(val = 0))
 
 # Round the values to 2 decimal places
-cancer_data_long <- cancer_data_long %>%
-  mutate(across(c(Male, Female), round, 2))
+cancer_data_long <- cancer_data_long |>
+  mutate(across(c(Male, Female), ~ round(.x, 2)))
 
 # Adjust the sign for female deaths to create a bi-directional effect
-cancer_data_long_base <- cancer_data_long %>%
+cancer_data_long_base <- cancer_data_long |>
   mutate(Female = -Female)
 ```
 
+## End of Preprocessing
+
 ```{r}
 # Base Plot
+# Geoms
 
-# TODO: Make the asthetics of the plot more visually appealing (In terms of shifting around the elements, resizing the plot and ect...)
-
-# Create the plot
 p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
-  geom_bar(aes(y = Male, fill = "Male"), stat = "identity", width = 0.8) +
-  geom_bar(aes(y = Female, fill = "Female"), stat = "identity", width = 0.8) +
-  coord_flip() +
-  scale_y_continuous(labels = abs) +
-  labs(title = "Cancer Deaths by Type and Gender, World, 2019",
-       x = "Cancer Type",
-       y = "Number of Deaths",
-       fill = "Gender") +
-  scale_fill_manual(values = c("Male" = "blue", "Female" = "pink")) +
-  theme_minimal() +
-  theme(axis.text.y = element_text(size = 10),
-        axis.title.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        plot.title = element_text(size = 16, face = "bold")) +
-  geom_text(aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")), 
-            position = position_stack(vjust = 0.5), hjust = 1.1, size = 3) +
-  geom_text(aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")), 
-            position = position_stack(vjust = 0.5), hjust = -0.1, size = 3)
-
-# Save the plot as an image with larger dimensions
-# ggsave("Cancer_Deaths_by_Type_and_Gender_2019.png", plot = p, width = 20, height = 15, dpi = 300)
+  geom_bar(aes(y = Male, fill = "Male"), stat = "identity") +
+  geom_bar(aes(y = Female, fill = "Female"), stat = "identity") +
+  coord_flip()
 
 p
-
 ```
 
 ```{r}
+# Plot Annotation
+
+p <- p +
+  labs(
+    title = "Global Cancer Deaths by Type and Gender in 2019",
+    x = "Type",
+    y = "Number of Deaths",
+    fill = "Gender",
+    caption = "Source: IHME, Global Burden of Disease (2019)"
+  )
+
+p
+```
+
+```{r}
+# Scales + Guides
+
+max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
+
+limit <- max_value * 4
+
+#p <- p +
+#  scale_y_continuous(
+#    limits = c(-limit, limit),
+#    breaks = seq(-1.5e6, 1.5e6, by = 5e5),
+#    labels = function(x) scales::comma(abs(x)) 
+#  )
+
+p <- p +
+  scale_y_continuous(
+    limits = c(-limit, limit),
+    trans = pseudo_log_trans(base = 10, sigma = 1e3),  # Adjust sigma for more gradual scaling
+    breaks = c(-10^6, -10^5, -10^4, 0, 10^4, 10^5, 10^6),  # Logarithmic breaks
+    labels = function(x) scales::comma(abs(x)) 
+  )
+
+p
+```
+
+```{r}
+# Data Annotations
+
+p <- p +
+  geom_text(
+    aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")),
+    position = position_nudge(x = -0.05, y = 0),  # Nudge slightly to the left
+    hjust = 1.1,  # Right-align text
+    size = 4
+  ) +
+  geom_text(
+    aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")),
+    position = position_nudge(x = 0.05, y = 0),  # Nudge slightly to the right
+    hjust = -0.1,  # Left-align text
+    size = 4
+  )
+
+p
+```
+
+```{r}
+# Theme
+
+p <- p + 
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 14),
+    axis.text.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    axis.title.x = element_text(size = 14),
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    legend.title = element_text(size = 14, hjust = 0.5),
+    legend.text = element_text(size = 14),
+    legend.position = "top",
+    plot.caption = element_text(size = 12)
+  ) +
+  theme(
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+    axis.title.x = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    axis.title.y = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    plot.caption = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    legend.title = element_blank()
+  )
+
+p
+```
+
+```{r}
+
+# # TODO: Create the sequential color scheme for both female and male (reference the picture sent in the group) DONE 
+
 ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
   geom_bar(aes(y = Male, fill = Male), stat = "identity", width = 0.8) +
   scale_fill_gradientn(name = "Male Deaths", colors = brewer.pal(9, "Blues")) +
@@ -137,11 +222,4 @@ ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male)))
 
 ```
 
-Footnote links for reference:
-https://training.seer.cancer.gov/disease/categories/classification.html
-https://www.cancer.gov/types
-https://www.cancerresearchuk.org/health-professional/cancer-statistics/statistics-by-cancer-type
-https://colorbrewer2.org/#type=sequential&scheme=Reds&n=3
-
-
-
+Footnote links for reference: https://training.seer.cancer.gov/disease/categories/classification.html https://www.cancer.gov/types https://www.cancerresearchuk.org/health-professional/cancer-statistics/statistics-by-cancer-type https://colorbrewer2.org/#type=sequential&scheme=Reds&n=3
