@@ -11,6 +11,7 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(ggnewscale)
+library(RColorBrewer)
 ```
 
 ```{r}
@@ -54,7 +55,7 @@ cancer_data_2019 <- cancer_data_2019 %>%
 # TODO:  Find out about proper classifications of cancer to help support our groupings and change it if necessary
 
 
-# TODO: Create the sequential color scheme for both female and male (reference the picture sent in the group)
+# TODO: Create the sequential color scheme for both female and male (reference the picture sent in the group) DONE 
 
 
 # Group by new cancer groups and sum the values
@@ -112,9 +113,35 @@ p
 ```
 
 ```{r}
+ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
+  geom_bar(aes(y = Male, fill = Male), stat = "identity", width = 0.8) +
+  scale_fill_gradientn(name = "Male Deaths", colors = brewer.pal(9, "Blues")) +
+  new_scale_fill() +
+  geom_bar(aes(y = Female, fill = abs(Female)), stat = "identity", width = 0.8) +
+  scale_fill_gradientn(name = "Female Deaths", colors = brewer.pal(9, "Reds")) +
+  coord_flip() +
+  scale_y_continuous(labels = abs) +
+  labs(title = "Cancer Deaths by Type and Gender, World, 2019",
+       x = "Cancer Type",
+       y = "Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        plot.title = element_text(size = 16, face = "bold"),
+        legend.position = "top") +
+  geom_text(aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")), 
+            position = position_stack(vjust = 0.5), hjust = 1.1, size = 3, color = "red") +
+  geom_text(aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")), 
+            position = position_stack(vjust = 0.5), hjust = -0.1, size = 3, color = "blue")
 
 ```
 
-```{r}
+Footnote links for reference:
+https://training.seer.cancer.gov/disease/categories/classification.html
+https://www.cancer.gov/types
+https://www.cancerresearchuk.org/health-professional/cancer-statistics/statistics-by-cancer-type
+https://colorbrewer2.org/#type=sequential&scheme=Reds&n=3
 
-```
+
+
