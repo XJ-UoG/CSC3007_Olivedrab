@@ -45,8 +45,6 @@ cancer_data_2019 <- cancer_data_2019 %>%
 ```
 
 ```{r}
-# TODO:  Find out about proper classifications of cancer to help support our groupings and change it if necessary
-
 # Define new cancer groups
 cancer_data_2019 <- cancer_data_2019 %>%
   mutate(cause_group = case_when(
@@ -112,7 +110,8 @@ p
 
 p <- p +
   labs(
-    title = "Global Cancer Deaths by Type and Gender in 2019",
+    title = "Cancer Deaths by Type, Gender in 2019",
+    subtitle = "Total global annual number of deaths from cancers by type and sexes",
     x = "Type",
     y = "Number of Deaths",
     fill = "Gender",
@@ -127,22 +126,22 @@ p
 
 max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
 
-limit <- max_value * 4
-
-#p <- p +
-#  scale_y_continuous(
-#    limits = c(-limit, limit),
-#    breaks = seq(-1.5e6, 1.5e6, by = 5e5),
-#    labels = function(x) scales::comma(abs(x)) 
-#  )
+limit <- max_value * 1.1
 
 p <- p +
   scale_y_continuous(
     limits = c(-limit, limit),
-    trans = pseudo_log_trans(base = 10, sigma = 1e3),  # Adjust sigma for more gradual scaling
-    breaks = c(-10^6, -10^5, -10^4, 0, 10^4, 10^5, 10^6),  # Logarithmic breaks
+    breaks = seq(-1.5e6, 1.5e6, by = 5e5),
     labels = function(x) scales::comma(abs(x)) 
   )
+
+#p <- p +
+#  scale_y_continuous(
+#    limits = c(-limit, limit),
+#    trans = pseudo_log_trans(base = 10, sigma = 1e3),  # Adjust sigma for more gradual scaling
+#    breaks = c(-10^6, -10^5, -10^4, 0, 10^4, 10^5, 10^6),  # Logarithmic breaks
+#    labels = function(x) scales::comma(abs(x)) 
+#  )
 
 p
 ```
@@ -154,13 +153,13 @@ p <- p +
   geom_text(
     aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")),
     position = position_nudge(x = -0.05, y = 0),  # Nudge slightly to the left
-    hjust = 1.1,  # Right-align text
+    hjust = 1.1, 
     size = 4
   ) +
   geom_text(
     aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")),
     position = position_nudge(x = 0.05, y = 0),  # Nudge slightly to the right
-    hjust = -0.1,  # Left-align text
+    hjust = -0.1,
     size = 4
   )
 
@@ -175,9 +174,9 @@ p <- p +
   theme(
     axis.text.y = element_text(size = 14),
     axis.text.x = element_text(size = 14),
-    axis.title.y = element_text(size = 14),
-    axis.title.x = element_text(size = 14),
-    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.y = element_text(size = 16),
+    axis.title.x = element_text(size = 16),
+    plot.title = element_text(size = 20, face = "bold"),
     legend.title = element_text(size = 14, hjust = 0.5),
     legend.text = element_text(size = 14),
     legend.position = "top",
@@ -185,14 +184,16 @@ p <- p +
   ) +
   theme(
     plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
-    axis.title.x = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
-    axis.title.y = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    axis.title.x = element_text(margin = margin(t = 15, r = 10, b = 10, l = 10)),
+    axis.title.y = element_text(margin = margin(t = 10, r = 15, b = 10, l = 10)),
     plot.caption = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
     legend.title = element_blank()
   )
 
 p
 ```
+
+## Experimental features below
 
 ```{r}
 
