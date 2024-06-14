@@ -72,9 +72,13 @@ cancer_data_long <- cancer_data_grouped %>%
 # Round the values to 2 decimal places
 cancer_data_long <- cancer_data_long %>%
   mutate(across(c(Male, Female), round, 2))
+
+# Adjust the sign for female deaths to create a bi-directional effect
+cancer_data_long_base <- cancer_data_long %>%
+  mutate(Female = -Female)
 ```
 
-```{r} 
+```{r}
 # Base Plot
 
 # TODO: Make the asthetics of the plot more visually appealing (In terms of shifting around the elements, resizing the plot and ect...)
@@ -106,7 +110,6 @@ p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Ma
 p
 
 ```
-
 
 ```{r}
 
