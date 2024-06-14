@@ -1,0 +1,147 @@
+---
+title: "Main_Visualization"
+format: html
+editor: visual
+---
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggnewscale)
+```
+
+```{r}
+# Load the dataset
+cancer_data <- read_csv("cancer-dataset.csv")
+#show head of the dataset
+head(cancer_data)
+```
+
+```{r}
+# Filter data for the year 2019 and measure 'Deaths'
+cancer_data_2019 <- cancer_data %>%
+  filter(year == 2019, measure_name == "Deaths", age_name == "All ages") %>%
+  select(cause_name, sex_name, val)
+
+# Remove "Total cancers" and "Total excl. non-melanoma" from the dataset
+cancer_data_2019 <- cancer_data_2019 %>%
+  filter(!cause_name %in% c("Total cancers", "Total Cancers excluding Non-melanoma skin cancer"))
+
+# Show the head of the filtered dataset
+head(cancer_data_2019)
+```
+
+```{r}
+# Shorten the long cancer names
+cancer_data_2019 <- cancer_data_2019 %>%
+  mutate(cause_name = case_when(
+    cause_name == "Tracheal, bronchus, and lung cancer" ~ "Lung cancer",
+    cause_name == "Soft tissue and other extraosseous sarcomas" ~ "Soft tissue sarcomas",
+    cause_name == "Malignant neoplasm of bone and articular cartilage" ~ "Bone cancer",
+    cause_name == "Neuroblastoma and other peripheral nervous cell tumors" ~ "Neuroblastoma",
+    cause_name == "Total Cancers excluding Non-melanoma skin cancer" ~ "Total excl. non-melanoma",
+    cause_name == "Non-Hodgkin lymphoma" ~ "NHL",
+    cause_name == "Other malignant neoplasms" ~ "Other malignancies",
+    cause_name == "Other neoplasms" ~ "Other neoplasms",
+    cause_name == "Brain and central nervous system cancer" ~ "Brain cancer",
+    TRUE ~ cause_name
+  ))
+```
+
+```{r}
+# Pivot the data
+cancer_data_long <- cancer_data_2019 %>%
+  pivot_wider(names_from = sex_name, values_from = val, values_fill = list(val = 0))
+
+# Round the values to 2 decimal places
+cancer_data_long <- cancer_data_long %>%
+  mutate(across(c(Male, Female), round, 2))
+```
+
+```{r}
+# Base Plot
+
+# Adjust the sign for female deaths to create a bi-directional effect
+cancer_data_long_base <- cancer_data_long %>%
+  mutate(Female = -Female)
+
+p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_name, abs(Female) + Male))) +
+  geom_bar(aes(y = Male, fill = "Male"), stat = "identity", width = 0.8) +
+  geom_bar(aes(y = Female, fill = "Female"), stat = "identity", width = 0.8) +
+  coord_flip() +
+  scale_y_continuous(labels = abs) +
+  labs(title = "Cancer Deaths by Type and Gender, World, 2019",
+       x = "Cancer Type",
+       y = "Number of Deaths",
+       fill = "Gender") +
+  scale_fill_manual(values = c("Male" = "blue", "Female" = "pink")) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        plot.title = element_text(size = 16, face = "bold")) +
+  geom_text(aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")), 
+            position = position_stack(vjust = 0.5), hjust = 1.1, size = 3) +
+  geom_text(aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")), 
+            position = position_stack(vjust = 0.5), hjust = -0.1, size = 3)
+
+# Save the plot as an image with larger dimensions
+# ggsave("Cancer_Deaths_by_Type_and_Gender_2019.png", plot = p, width = 20, height = 15, dpi = 300)
+
+p
+
+```
+
+```{r}
+# Rev 2: Create a combined plot with color gradients for intensity
+
+cancer_data_long_rev2 <- cancer_data_long %>%
+  mutate(Female = -Female)
+
+# Create color gradients for intensity
+cancer_data_long_rev2 <- cancer_data_long_rev2 %>%
+  mutate(Male_fill = scales::rescale(Male),
+         Female_fill = scales::rescale(abs(Female)))
+# Create the combined plot with distinct color gradients
+p_combined <- ggplot() +
+  geom_bar(data = cancer_data_long_rev2, aes(x = reorder(cause_name, abs(Female) + Male), y = Male, fill = Male), 
+           stat = "identity", width = 0.8) +
+  scale_fill_gradientn(name = "Male Deaths", colors = c("lightblue", "blue", "darkblue")) +
+  new_scale_fill() +
+  geom_bar(data = cancer_data_long_rev2, aes(x = reorder(cause_name, abs(Female) + Male), y = Female, fill = Female), 
+           stat = "identity", width = 0.8) +
+  scale_fill_gradientn(name = "Female Deaths", colors = c("lightpink", "red", "darkred")) +
+  coord_flip() +
+  scale_y_continuous(labels = abs) +
+  labs(title = "Cancer Deaths by Type and Gender, World, 2019",
+       x = "Cancer Type",
+       y = "Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 10),
+        axis.title.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        plot.title = element_text(size = 16, face = "bold"),
+        legend.position = "top") +
+  geom_text(data = cancer_data_long_rev2, aes(x = reorder(cause_name, abs(Female) + Male), y = Male, label = formatC(Male, format = "d", big.mark = ",")), 
+            position = position_stack(vjust = 0.5), hjust = -0.1, size = 3, color = "blue") +
+  geom_text(data = cancer_data_long_rev2, aes(x = reorder(cause_name, abs(Female) + Male), y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")), 
+            position = position_stack(vjust = 0.5), hjust = 1.1, size = 3, color = "red")
+
+# Save the combined plot
+ggsave("Cancer_Deaths_by_Type_and_Gender_2019_Combined.png", plot = p_combined, width = 20, height = 15, dpi = 300)
+
+# Display the combined plot
+p_combined
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
