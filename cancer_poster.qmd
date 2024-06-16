@@ -73,58 +73,45 @@ include_graphics("images/infotip_color_change.png")
 
 # Suggested Improvements
 
-1.  *Add a plot title and a source note* so that the figure can be understood in
-    isolation (e.g., when shared on social media).
-1.  *Identify missing data clearly.*  Rendering unknown incidence fully
-    transparent will distinguish it from zero incidence,
-1.  *Include labels for every state.* To avoid overplotting, use two-letter
-    abbreviations instead of full state names and stagger the labels along the
-    y-axis.
-1.  *Add a title to the color legend.*
-1.  *Avoid using a rainbow color palette.* It lacks a meaningful progression
-    through color space and is not colorblind-friendly. Consider using a
-    sequential ColorBrewer palette instead.[^colorbrewer]
-1.  *Use a discrete color palette.* Continuous palettes can make it
-    challenging for humans to detect patterns below just noticeable color
-    differences.
-1.  *Apply a logarithmic color scale* because most data are below the mean
-    incidence.
-1.  *Add grid lines* in ten-year intervals along the x-axis and for every
-    second state along the y-axis. Grid lines will aid in identifying states
-    and years in the middle of the plot, even without the infotip.
-1.  Because there are more missing data on the right side of the plot,
-    *shifting y-axis labels to the right* will improve visually matching
-    states with corresponding grid lines.
-    
-[^colorbrewer]: <https://colorbrewer2.org/#type=sequential&scheme=Reds&n=5>
-    
-    
+1. *Enhance informativeness* by adding demographic comparisons, such as cancer death rates by gender.
+2. *Improve clarity and understanding* on cancer death statistics by grouping similar cancer types together.
+3. Add in labsl to both the x and y-axis for *improved clarity*.
+4. Provide exact whole numbers instead of estimates to *enhance comprehension and clarity*.
+5. Incorporate a straightforward and *visually appealing* colour scheme to *improve the chart’s appearance*.
+6. Include a colour legend to explain the meaning of the colours used.
+7. Sort the values in descending order according to the total deaths to *highlight the most critical cancer types*.
+8. Include grid lines at *meaningful intervals*, such as every 500,000, considering the value range extends up to a million.
+
 # Implementation
 
 
 ## Data
 
-*   Weekly counts of measles cases by state were obtained from Project
-    Tycho.[^panhuis_counts_2018] The data have missing weeks, which were
-    treated as zero in @fig-wsj-on-poster, potentially underestimating the
-    annual total. Instead, we calculated the weekly mean case count on the
-    basis of non-missing data only.
-*   Decennial U.S.\ census data for each state.[^stats_state_2023]
+*   The cancer deaths by type chart was sourced from Our World In Data [^our_world_in_data_chart]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
 
-[^panhuis_counts_2018]: <https://doi.org/10.25337/T7/ptycho.v2.0/US.14189004>
-[^stats_state_2023]: <https://www.stats.indiana.edu/population/PopTotals/historic_counts_states.asp>
+*   Data source was gathered from IHME, Global Burden of Disease. (2024) [^cancer_dataset]
+
+[^our_world_in_data_chart]: <https://ourworldindata.org/cancer>
+[^cancer_dataset]: <https://vizhub.healthdata.org/gbd-results/>
 
 
 ## Software
 
-We used the Quarto publication framework and the R programming language, along with the following third-party packages:
+In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:
 
-*   *readxl* for data import
-*   *tidyverse* for data transformation, including *ggplot2* for visualization
-    based on the grammar of graphics
-*   *knitr* for dynamic document generation
-*   *zoo* for interpolating annual population data from the decennial
-    U.S.\ census
+*Data Import:
+*readr*: reads csv files into R
+
+*Data Manipulation & Tidying:
+*dplyr*: filters, selects and arranges data
+*tidyr*: reshapes data frames to a tidy format
+
+*Data Visualization:
+*ggplot2*: creates graphics based on Grammer of Graphics
+*ggnewscale*: applies multiple colours and fill scales within plots
+*RColorBrewer*: provides addition colour palettes for graphics
+*scales*: handles various aspects of scaling data
+
 
 ```{=typst}
 #v(2em)
