@@ -107,6 +107,7 @@ In our project, we employed Quarto along with the R programming language. We int
 *tidyr*: reshapes data frames to a tidy format
 
 *Data Visualization:
+*knitr*: integrates R code and output, affects how figures are displayed in the final document
 *ggplot2*: creates graphics based on Grammer of Graphics
 *ggnewscale*: applies multiple colours and fill scales within plots
 *RColorBrewer*: provides addition colour palettes for graphics
