@@ -1,10 +1,10 @@
 ---
-title: Visualizing Measles Incidence in the USA (1928--2001)
+title: Visualizing Cancer Deaths by Type Worldwide (2019)
 format:
   poster-typst: 
     size: "33x23" # Approximately A1
-    poster-authors: "Michael T. Gastner"
-    departments: "Information and Communication Technologies"
+    poster-authors: "Team Olivedrab"
+    departments: "CSC3007 P1"
     institution-logo: "./images/sit-logo.png"
     footer-text: "Information Visualization 2024"
     footer-emails: "michael.gastner@singaporetech.edu.sg"
@@ -20,8 +20,10 @@ knitr:
 #| include: false
 
 library(knitr)
-purl("measles_prep.qmd")
-source("measles_prep.R")
+
+# change to our files when final visualization is complete
+#purl("measles_prep.qmd")
+#source("measles_prep.R")
 ```
 
 
@@ -94,24 +96,23 @@ include_graphics("images/infotip_color_change.png")
 [^our_world_in_data_chart]: <https://ourworldindata.org/cancer>
 [^cancer_dataset]: <https://vizhub.healthdata.org/gbd-results/>
 
-
 ## Software
 
-In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:
-
+In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:  
+\
 *Data Import:
-*readr*: reads csv files into R
-
+*readr*: reads csv files into R  
+\
 *Data Manipulation & Tidying:
-*dplyr*: filters, selects and arranges data
-*tidyr*: reshapes data frames to a tidy format
-
+*dplyr*: filters, selects and arranges data,
+*tidyr*: reshapes data frames to a tidy format  
+\
 *Data Visualization:
-*knitr*: integrates R code and output, affects how figures are displayed in the final document
-*ggplot2*: creates graphics based on Grammer of Graphics
-*ggnewscale*: applies multiple colours and fill scales within plots
-*RColorBrewer*: provides addition colour palettes for graphics
-*scales*: handles various aspects of scaling data
+*knitr*: integrates R code and output, affects how figures are displayed in the final document,
+*ggplot2*: creates graphics based on Grammer of Graphics,
+*ggnewscale*: applies multiple colours and fill scales within plots,
+*RColorBrewer*: provides addition colour palettes for graphics,
+*scales*: handles various aspects of scaling data,
 
 
 ```{=typst}
@@ -128,50 +129,54 @@ In our project, we employed Quarto along with the R programming language. We int
 #| fig-height: 5.8
 #| out-width: 100%
 
-g <-
-  ggplot(measles, aes(year + 0.5, state, fill = incidence + 1e-6)) +
-  geom_tile(width = 0.75, height = 0.75) +
-  geom_vline(xintercept = 1963, colour = "darkblue", linewidth = 1) +
-  annotate(
-    "label",
-    label = "Vaccine introduced",
-    x = 1963,
-    y = 60, # 54.5,
-    vjust = 1,
-    hjust = 0
-  ) +
-  labs(
-    x = "Year",
-    y = NULL,
-    fill = "Mean weekly incidence\n(per 100,000) if known",
-    title = "Measles in the USA by State",
-    caption = "Source: Project Tycho"
-  ) +
-  scale_x_continuous(expand = expansion(0.01, 0)) +
-  scale_y_discrete(limits = rev, position = "right") +
-  scale_fill_fermenter(
-    breaks = 10^(-2:3),
-    labels = prettyNum,
-    trans = "log10",
-    palette = "Reds",
-    direction = 1,
-    na.value = "#ffffff00",
-  ) +
-  guides(
-    y = guide_axis(n.dodge = 2),
-    fill = guide_coloursteps(frame.colour = "gray", direction = "horizontal")
-  ) +
-  theme_minimal() +
-  theme(
-    legend.key.size = unit(0.75, "cm"),
-    legend.title = element_text(hjust = 1, vjust = 1),
-    legend.position = "top",
-    panel.grid.major.x = element_line(colour = "gray", linewidth = 0.5),
-    panel.grid.minor.x = element_line(colour = "gray", linewidth = 0.5),
-    panel.grid.major.y = element_line(colour = "gray", linewidth = c(0, 0.5)),
-    plot.title = element_text(hjust = 0.5)
-  )
-g
+# Input our own visualization code
+
+# 
+# g <-
+#   ggplot(measles, aes(year + 0.5, state, fill = incidence + 1e-6)) +
+#   geom_tile(width = 0.75, height = 0.75) +
+#   geom_vline(xintercept = 1963, colour = "darkblue", linewidth = 1) +
+#   annotate(
+#     "label",
+#     label = "Vaccine introduced",
+#     x = 1963,
+#     y = 60, # 54.5,
+#     vjust = 1,
+#     hjust = 0
+#   ) +
+#   labs(
+#     x = "Year",
+#     y = NULL,
+#     fill = "Mean weekly incidence\n(per 100,000) if known",
+#     title = "Measles in the USA by State",
+#     caption = "Source: Project Tycho"
+#   ) +
+#   scale_x_continuous(expand = expansion(0.01, 0)) +
+#   scale_y_discrete(limits = rev, position = "right") +
+#   scale_fill_fermenter(
+#     breaks = 10^(-2:3),
+#     labels = prettyNum,
+#     trans = "log10",
+#     palette = "Reds",
+#     direction = 1,
+#     na.value = "#ffffff00",
+#   ) +
+#   guides(
+#     y = guide_axis(n.dodge = 2),
+#     fill = guide_coloursteps(frame.colour = "gray", direction = "horizontal")
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     legend.key.size = unit(0.75, "cm"),
+#     legend.title = element_text(hjust = 1, vjust = 1),
+#     legend.position = "top",
+#     panel.grid.major.x = element_line(colour = "gray", linewidth = 0.5),
+#     panel.grid.minor.x = element_line(colour = "gray", linewidth = 0.5),
+#     panel.grid.major.y = element_line(colour = "gray", linewidth = c(0, 0.5)),
+#     plot.title = element_text(hjust = 0.5)
+#   )
+# g
+
 ```
 
 
