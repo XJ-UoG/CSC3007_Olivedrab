@@ -85,51 +85,6 @@ cancer_data_long <- cancer_data_long |>
 # Adjust the sign for female deaths to create a bi-directional effect
 cancer_data_long_base <- cancer_data_long |>
   mutate(Female = -Female)
-
-p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
-  geom_bar(aes(y = Male, fill = "Male"), stat = "identity", width = 0.9) +
-  geom_bar(aes(y = Female, fill = "Female"), stat = "identity", width = 0.9) +
-  coord_flip()
-
-p <- p +
-  labs(
-    title = "Cancer Deaths by Type, Gender in 2019",
-    subtitle = "Total global annual number of deaths from cancers by type and gender",
-    x = "Type of Cancer",
-    y = "Number of Deaths",
-    fill = "Gender",
-    caption = "Source: IHME, Global Burden of Disease (2019)"
-  )
-
-max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
-
-limit <- max_value * 1.2
-
-p <- p +
-  scale_y_continuous(
-    limits = c(-limit, limit),
-    breaks = seq(-1.5e6, 1.5e6, by = 5e5),
-    labels = function(x) scales::comma(abs(x)) 
-  )
-
-p <- p +
-  geom_label(
-    aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")),
-    position = position_nudge(x = -0.05, y = 0),  # Nudge slightly to the left
-    hjust = 1.1, 
-    size = 3,
-    fill = "white",
-    label.size = 0 
-  ) +
-  geom_label(
-    aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")),
-    position = position_nudge(x = 0.05, y = 0),  # Nudge slightly to the right
-    hjust = -0.1,
-    size = 3,
-    fill = "white",
-    label.size = 0 
-  )
-
 ```
 
 # Introduction
@@ -214,20 +169,64 @@ Data Visualization: *knitr*: integrates R code and output, affects how figures a
 #| out-width: 100%
 
 # Input our own visualization code
+p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
+  geom_bar(aes(y = Male, fill = "Male"), stat = "identity", width = 0.9) +
+  geom_bar(aes(y = Female, fill = "Female"), stat = "identity", width = 0.9) +
+  coord_flip()
+
+p <- p +
+  labs(
+    title = "Cancer Deaths by Type, Gender in 2019",
+    subtitle = "Total global annual number of deaths from cancers by type and gender",
+    x = "Type",
+    y = "Number of Deaths",
+    fill = "Gender",
+    caption = "Source: IHME, Global Burden of Disease (2019)"
+  )
+
+max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
+
+limit <- max_value * 1.15
+
+p <- p +
+  scale_y_continuous(
+    limits = c(-limit, limit),
+    breaks = seq(-1.5e6, 1.5e6, by = 5e5),
+    labels = function(x) scales::comma(abs(x)) 
+  )
+
+p <- p +
+  geom_label(
+    aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")),
+    position = position_nudge(x = 0, y = 0),  # Nudge slightly to the left
+    hjust = 1.1, 
+    size = 2,
+    fill = "white",
+    label.size = 0 
+  ) +
+  geom_label(
+    aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")),
+    position = position_nudge(x = 0, y = 0),  # Nudge slightly to the right
+    hjust = -0.1,
+    size = 2,
+    fill = "white",
+    label.size = 0 
+  )
 
 p <- p + 
   theme_minimal() +
   theme(
-    axis.text.y = element_text(size = 8),
-    axis.text.x = element_text(size = 8),
-    axis.title.y = element_text(size = 8),
-    axis.title.x = element_text(size = 8),
+    axis.text.y = element_text(size = 6),
+    axis.text.x = element_text(size = 6),
+    axis.title.y = element_text(size = 6),
+    axis.title.x = element_text(size = 6),
     plot.title = element_text(size = 12, face = "bold"),
-    plot.subtitle = element_text(size = 10), 
-    legend.title = element_text(size = 8, hjust = 0.5),
-    legend.text = element_text(size = 8),
+    plot.subtitle = element_text(size = 8), 
+    legend.title = element_text(size = 6, hjust = 0.5),
+    legend.text = element_text(size = 6),
+    legend.key.size = unit(0.4, "cm"),
     legend.position = "top",
-    plot.caption = element_text(size = 8),
+    plot.caption = element_text(size = 6),
     panel.grid.major.y = element_line(color = "white"),  # Darker major grid lines
     panel.grid.major.x = element_line(color = "grey80"),  # Darker major grid lines
     panel.grid.minor.x = element_line(color = "grey80"),  # Darker major grid lines
