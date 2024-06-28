@@ -203,11 +203,11 @@ include_graphics("images/infotip_color_change.png")
 
 In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:\
 \
-*Data Import:* readr*: reads csv files into R\
+Data Import: *readr*: reads csv files into R\
 \
-*Data Manipulation & Tidying: *dplyr*: filters, selects and arranges data, *tidyr*: reshapes data frames to a tidy format\
+Data Manipulation & Tidying: *dplyr*: filters, selects and arranges data, *tidyr*: reshapes data frames to a tidy format\
 \
-*Data Visualization:* knitr*: integrates R code and output, affects how figures are displayed in the final document,* ggplot2*: creates graphics based on Grammer of Graphics,* ggnewscale*: applies multiple colours and fill scales within plots,* RColorBrewer*: provides addition colour palettes for graphics,* scales\*: handles various aspects of scaling data,
+Data Visualization: *knitr*: integrates R code and output, affects how figures are displayed in the final document, *ggplot2*: creates graphics based on Grammer of Graphics, *ggnewscale*: applies multiple colours and fill scales within plots, *RColorBrewer*: provides addition colour palettes for graphics, *scales*: handles various aspects of scaling data
 
 ```{=typst}
 #v(2em)
