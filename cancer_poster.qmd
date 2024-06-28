@@ -95,7 +95,7 @@ p <- p +
   labs(
     title = "Cancer Deaths by Type, Gender in 2019",
     subtitle = "Total global annual number of deaths from cancers by type and gender",
-    x = "Type",
+    x = "Type of Cancer",
     y = "Number of Deaths",
     fill = "Gender",
     caption = "Source: IHME, Global Burden of Disease (2019)"
@@ -103,7 +103,7 @@ p <- p +
 
 max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
 
-limit <- max_value * 1.15
+limit <- max_value * 1.2
 
 p <- p +
   scale_y_continuous(
@@ -156,31 +156,22 @@ Given persistent skepticism in some communities about the efficacy of vaccines, 
 #| label: fig-wsj-on-poster
 #| fig-cap: "Measles incidence by state of the USA and year, published by the
 #|   Wall Street Journal."
-#| out-width: 100%
+#| out-width: 98%
 
-include_graphics("images/original.png")
+include_graphics("images/original_visualization.png")
 ```
 
 # Strengths
 
--   The heatmap design effectively conveys a high information content without cluttering the plot.
--   Pointing with the mouse at a tile opens an infotip, enabling readers to retrieve specific incidence data for a given state and year (@fig-infotip_color_change). The infotip only occludes a small portion of the plot, and the partial transparency of the infotip ensures visibility of the tiles underneath.
--   The vertical line indicating the year of vaccine introduction provides valuable contextual information.
-
-```{r}
-#| label: fig-infotip_color_change
-#| fig-cap: "Zoomed-in screenshot of the original plot with and without
-#|   activated infotip."
-#| out-width: 100%
-
-include_graphics("images/infotip_color_change.png")
-```
+-   Straightforward and clear representation of data, providing a clear visual indication of the most deadly cancers
+-   Horizontal bar chart format makes it easy to compare the number of deaths caused by different types of cancer, viewers quickly identify which cancers have the highest and lowest mortality rates.
+-   Exact figures are alongside the bars providing precise data which is useful for detailed analysis and comparison
 
 # Suggested Improvements
 
 1.  *Enhance informativeness* by adding demographic comparisons, such as cancer death rates by gender.
-2.  *Improve clarity and understanding* on cancer death statistics by grouping similar cancer types together.
-3.  Add in labsl to both the x and y-axis for *improved clarity*.
+2.  *Reduce cluttering and improve understanding* on cancer death statistics by grouping similar cancer types together.
+3.  Add in labels to both the x and y-axis for *improved clarity*.
 4.  Provide exact whole numbers instead of estimates to *enhance comprehension and clarity*.
 5.  Incorporate a straightforward and *visually appealing* colour scheme to *improve the chart’s appearance*.
 6.  Include a colour legend to explain the meaning of the colours used.
@@ -218,7 +209,7 @@ Data Visualization: *knitr*: integrates R code and output, affects how figures a
 #| label: fig-ggplot
 #| fig-cap: "Revised visualization of measles incidence by state of the USA and
 #|  year."
-#| fig-width: 6.0
+#| fig-width: 6.5
 #| fig-height: 5.8
 #| out-width: 100%
 
@@ -242,11 +233,12 @@ p <- p +
     panel.grid.minor.x = element_line(color = "grey80"),  # Darker major grid lines
   ) +
   theme(
-    #plot.subtitle = element_text(margin = margin(b = 10)),
-    # plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
-    # axis.title.x = element_text(margin = margin(t = 15, r = 10, b = 10, l = 10)),
+    # plot.subtitle = element_text(margin = margin(b = 10)),
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+    axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 10, l = 0)),
     # axis.title.y = element_text(margin = margin(t = 10, r = 15, b = 10, l = 10)),
-    #plot.caption = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    # plot.caption = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    plot.subtitle = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)), 
     legend.title = element_blank()
   )
 
