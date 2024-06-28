@@ -1,5 +1,5 @@
 ---
-title: "Main_Visualization"
+title: "Main_Visualization: Cancer Deaths by Type and Gender (World, 2019)"
 format: html
 editor: visual
 ---
@@ -8,6 +8,12 @@ editor: visual
 # Set global chunk options
 knitr::opts_chunk$set(fig.align = "center", fig.width = 12, fig.height = 8)
 ```
+
+# Introduction
+
+This document contains the data processing required to visualize cancer deaths by type and gender for the year 2019. The dataset is retrieved from the Global Burden of Disease (GBD) Results Tool available at [IHME GBD Results](https://vizhub.healthdata.org/gbd-results/).
+
+The code below requires the following packages:
 
 ```{r}
 #| label: required-packages
@@ -24,12 +30,23 @@ library(RColorBrewer)
 library(scales)
 ```
 
+# Loading the Dataset
+
+We loaded and displayed the first few rows to understand the structure. This dataset contains information on various types of cancers, the number of deaths, and demographic details.
+
 ```{r}
 #| label: load-dataset
 
 cancer_data <- read_csv("cancer-dataset.csv")
 head(cancer_data)
 ```
+
+# Start of Pre-Processing:
+
+## Data Filtering
+
+-   *Filtered Year and Measure: We focus on the data for the year 2019 and select rows where the measure is 'Deaths' to analyze the mortality rates.*
+-   *Selected Relevant Columns: We retain only the columns that are necessary for our analysis: cause_name (type of cancer), sex_name (gender), and val (number of deaths).*
 
 ```{r}
 # Filter data for the year 2019 and measure 'Deaths'
@@ -38,11 +55,21 @@ cancer_data_2019 <- cancer_data %>%
   select(cause_name, sex_name, val)
 ```
 
+We then removed rows with "Total cancers" and "Total excl. non-melanoma" as these are aggregates and not needed for our detailed analysis.
+
+(Since they are not specific types of cancer, allowing us to ensure we focus on individual cancer types)
+
 ```{r}
 # Remove "Total cancers" and "Total excl. non-melanoma" from the dataset
 cancer_data_2019 <- cancer_data_2019 %>%
       filter(!cause_name %in% c("Total cancers", "Total Cancers excluding Non-melanoma skin cancer", "Other malignant neoplasms", "Other neoplasms"))
 ```
+
+## Grouping Cancer Types
+
+To simplify the visualization, we grouped similar types of cancer together and created a new column cause_group for these groups. This step helps in reducing the complexity of the dataset and makes the visualization more interpretable for the user hopefyully.
+
+(For example, Breast cancer, Cervical cancer, Uterine cancer, and a few others are grouped under Reproductive system.)
 
 ```{r}
 # Define new cancer groups
@@ -72,6 +99,15 @@ cancer_data_2019 <- cancer_data_2019 %>%
 
 ```
 
+## Summarizing and Reshaping the Data
+
+We group using the new cancer groups and sex, and sum the values. Pivoting the data to have separate columns for male and female deaths. We also round the values to two decimal places for better readability.
+
+-   *Summarize Values: Summed the values for each cancer group and gender to get the total number of deaths.*
+-   *Pivot Data: Reshaped the data to have separate columns for male and female deaths.*
+-   *Round Values: Rounded the number of deaths to 2 decimal places for better readability.*
+-   *Adjust Female Deaths: Inverted the values for female deaths to create a bi-directional bar chart where male and female deaths are displayed on opposite sides of the y-axis.*
+
 ```{r}
 # Group by new cancer groups and sum the values
 cancer_data_grouped <- cancer_data_2019 |>
@@ -93,7 +129,14 @@ cancer_data_long_base <- cancer_data_long |>
   mutate(Female = -Female)
 ```
 
-## End of Preprocessing
+## \~End of Pre-processing\~
+
+# Base Plot
+
+We created the base plot using ggplot2, with separate bars for male and female deaths.
+
+-   *Horizontal bar chart where the x-axis represents cancer types and the y-axis represents the number of deaths.*
+-   *Male deaths are shown on the right and female deaths on the left.*
 
 ```{r}
 # Base Plot
@@ -106,6 +149,10 @@ p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Ma
 
 p
 ```
+
+## Plot Annotation
+
+We add annotations to the plot, including titles, subtitles, and axis labels. Providing context and information.
 
 ```{r}
 # Plot Annotation
@@ -122,6 +169,16 @@ p <- p +
 
 p
 ```
+
+## Scales and Guides
+
+Adjust the scales and guides to ensure the plot is properly scaled and labeled.
+
+-   *Set y-axis limits to 115% of the maximum value to ensure that the bars fit well within the plot area.*
+
+-   *The breaks on the y-axis are set at intervals of 500,000 deaths.*
+
+-   *Labels are formatted to show absolute values with commas as thousand separators.*\
 
 ```{r}
 # Scales + Guides
@@ -148,6 +205,13 @@ p <- p +
 p
 ```
 
+## Data Annotations
+
+We added data annotations to the plot to display the exact number of deaths.
+
+-   *Used geom_label to add labels showing the exact number of deaths for both males and females.*
+-   *Labels are shifted slightly to the left for females and to the right for males to avoid overlapping with the bars.*
+
 ```{r}
 # Data Annotations
 
@@ -171,6 +235,18 @@ p <- p +
 
 p
 ```
+
+## Theme Customization
+
+Utilized a custom plot theme to improve its appearance.
+
+-   *Minimal Theme: Used theme_minimal for a clean look.*
+
+-   *Text Customization: Increased the size of axis texts, titles, plot titles, and legend texts for better readability.*
+
+-   *Grid Lines: Customized the grid lines to make the plot clearer.*
+
+-   *Margins: Adjusted the margins to ensure that there is adequate space around the plot elements.*
 
 ```{r}
 # Theme
@@ -203,6 +279,7 @@ p <- p +
 
 p
 ```
+
 ```{r}
 # Color Schemes
 
@@ -210,6 +287,8 @@ p
 ```
 
 ## Experimental features below
+
+Not gonna elaborate on this yet
 
 ```{r}
 

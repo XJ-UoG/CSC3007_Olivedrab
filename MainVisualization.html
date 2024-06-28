@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Main_Visualization</title>
+<title>Main_Visualization: Cancer Deaths by Type and Gender (World, 2019)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Main_Visualization</h1>
+<h1 class="title">Main_Visualization: Cancer Deaths by Type and Gender (World, 2019)</h1>
 </div>
 
 
@@ -96,6 +96,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>This document contains the data processing required to visualize cancer deaths by type and gender for the year 2019. The dataset is retrieved from the Global Burden of Disease (GBD) Results Tool available at <a href="https://vizhub.healthdata.org/gbd-results/">IHME GBD Results</a>.</p>
+<p>The code below requires the following packages:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
@@ -237,7 +241,7 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>max_value <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(cancer_data_long_base<span class="sc">$</span>Male), <span class="fu">abs</span>(cancer_data_long_base<span class="sc">$</span>Female))</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>limit <span class="ot">&lt;-</span> max_value <span class="sc">*</span> <span class="fl">1.2</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>limit <span class="ot">&lt;-</span> max_value <span class="sc">*</span> <span class="fl">1.15</span></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p <span class="sc">+</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
@@ -370,6 +374,7 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 </div>
 </div>
 <p>Footnote links for reference: https://training.seer.cancer.gov/disease/categories/classification.html https://www.cancer.gov/types https://www.cancerresearchuk.org/health-professional/cancer-statistics/statistics-by-cancer-type https://colorbrewer2.org/#type=sequential&amp;scheme=Reds&amp;n=3</p>
+</section>
 </section>
 
 </main>
