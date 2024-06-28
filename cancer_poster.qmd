@@ -18,31 +18,136 @@ knitr:
 ```{r}
 #| label: setup
 #| include: false
+#| warning: false
 
 library(knitr)
 
-# change to our files when final visualization is complete
-#purl("measles_prep.qmd")
-#source("measles_prep.R")
+# Load necessary libraries
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggnewscale)
+library(RColorBrewer)
+library(scales)
+
+# load-dataset
+cancer_data <- read_csv("cancer-dataset.csv")
+head(cancer_data)
+
+# Filter data for the year 2019 and measure 'Deaths'
+cancer_data_2019 <- cancer_data %>%
+  filter(year == 2019, measure_name == "Deaths", age_name == "All ages") %>%
+  select(cause_name, sex_name, val)
+
+# Remove "Total cancers" and "Total excl. non-melanoma" from the dataset
+cancer_data_2019 <- cancer_data_2019 %>%
+      filter(!cause_name %in% c("Total cancers", "Total Cancers excluding Non-melanoma skin cancer", "Other malignant neoplasms", "Other neoplasms"))
+
+# Define new cancer groups
+cancer_data_2019 <- cancer_data_2019 %>%
+  mutate(cause_group = case_when(
+    cause_name %in% c("Soft tissue and other extraosseous sarcomas") ~ "Soft tissue",
+    cause_name %in% c("Neuroblastoma and other peripheral nervous cell tumors") ~ "Nerve",
+    cause_name %in% c("Breast cancer", "Cervical cancer", "Uterine cancer", "Prostate cancer", "Ovarian cancer", "Testicular cancer") ~ "Reproductive system",
+    cause_name %in% c("Colon and rectum cancer", "Stomach cancer", "Esophageal cancer") ~ "Digestive system",
+    cause_name %in% c("Lip and oral cavity cancer", "Nasopharynx cancer", "Other pharynx cancer", "Larynx cancer") ~ "Head and neck",
+    cause_name %in% c("Gallbladder and biliary tract cancer", "Liver cancer", "Pancreatic cancer") ~ "Liver and pancreas",
+    cause_name %in% c("Malignant skin melanoma", "Non-melanoma skin cancer") ~ "Skin",
+    cause_name %in% c("Kidney cancer", "Bladder cancer") ~ "Urinary system",
+    cause_name %in% c("Brain and central nervous system cancer") ~ "Brain",
+    cause_name %in% c("Thyroid cancer") ~ "Thyroid",
+    cause_name %in% c("Mesothelioma") ~ "Mesothelioma",
+    cause_name %in% c("Hodgkin lymphoma", "Non-Hodgkin lymphoma") ~ "Lymphoma",
+    cause_name %in% c("Multiple myeloma") ~ "Plasma",
+    cause_name %in% c("Leukemia") ~ "Leukemia",
+    cause_name %in% c("Tracheal, bronchus, and lung cancer") ~ "Lung",
+    cause_name %in% c("Other malignant neoplasms", "Other neoplasms") ~ "Other Neoplasms",
+    cause_name %in% c("Malignant neoplasm of bone and articular cartilage") ~ "Bone and cartilage",
+    cause_name %in% c("Eye cancer") ~ "Eye",
+    TRUE ~ cause_name
+  ))
+
+# Group by new cancer groups and sum the values
+cancer_data_grouped <- cancer_data_2019 |>
+  group_by(cause_group, sex_name) |>
+  summarise(val = sum(val, na.rm = TRUE), .groups = 'drop')
+
+# Pivot the data
+cancer_data_long <- cancer_data_grouped|>
+  pivot_wider(names_from = sex_name, values_from = val, values_fill = list(val = 0))
+
+# Round the values to 2 decimal places
+cancer_data_long <- cancer_data_long |>
+  mutate(across(c(Male, Female), ~ round(.x, 2)))
+
+# Adjust the sign for female deaths to create a bi-directional effect
+cancer_data_long_base <- cancer_data_long |>
+  mutate(Female = -Female)
+
+p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
+  geom_bar(aes(y = Male, fill = "Male"), stat = "identity", width = 0.9) +
+  geom_bar(aes(y = Female, fill = "Female"), stat = "identity", width = 0.9) +
+  coord_flip()
+
+p <- p +
+  labs(
+    title = "Cancer Deaths by Type, Gender in 2019",
+    subtitle = "Total global annual number of deaths from cancers by type and gender",
+    x = "Type",
+    y = "Number of Deaths",
+    fill = "Gender",
+    caption = "Source: IHME, Global Burden of Disease (2019)"
+  )
+
+max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
+
+limit <- max_value * 1.15
+
+p <- p +
+  scale_y_continuous(
+    limits = c(-limit, limit),
+    breaks = seq(-1.5e6, 1.5e6, by = 5e5),
+    labels = function(x) scales::comma(abs(x)) 
+  )
+
+p <- p +
+  geom_label(
+    aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")),
+    position = position_nudge(x = -0.05, y = 0),  # Nudge slightly to the left
+    hjust = 1.1, 
+    size = 4,
+    fill = "white",
+    label.size = 0 
+  ) +
+  geom_label(
+    aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")),
+    position = position_nudge(x = 0.05, y = 0),  # Nudge slightly to the right
+    hjust = -0.1,
+    size = 4,
+    fill = "white",
+    label.size = 0 
+  )
 ```
 
 # Introduction
 
 Cancer is a group of diseases defined by the rapid proliferation of abnormal cells. It is the second largest cause of death worldwide. These cells have the potential to severely compromise one's health by invading surrounding tissues and, in some instances, spreading through other parts of the human body through the blood and lymphatic systems. In 2019, the Global Burden of Disease study found that approximately 10 million deaths worldwide, or one in six deaths were attributable to cancer.[^1]
 
-Measles is a highly contagious viral infection that can lead to severe complications, including pneumonia, encephalitis, and death. The average number of secondary cases resulting from a single infected individual is estimated to be between 10 and 16,[^1] but vaccination is reported to be 97% effective at preventing measles[^2]. Consequently, the introduction of the vaccine in 1963 was followed by a significant decline in measles incidence in the USA.
+[^1]: National Cancer Institute. Cancer Statistics \[Internet\]. Bethesda, MD: National Cancer Institute; \[cited 2024 Jun 28\]
 
+Measles is a highly contagious viral infection that can lead to severe complications, including pneumonia, encephalitis, and death. The average number of secondary cases resulting from a single infected individual is estimated to be between 10 and 16,[^2] but vaccination is reported to be 97% effective at preventing measles[^3]. Consequently, the introduction of the vaccine in 1963 was followed by a significant decline in measles incidence in the USA.
 
+[^2]: National Cancer Institute. Cancer Statistics \[Internet\]. Bethesda, MD: National Cancer Institute; \[cited 2024 Jun 28\]
 
-[^1]: National Cancer Institute. Cancer Statistics [Internet]. Bethesda, MD: National Cancer Institute; [cited 2024 Jun 28]
+[^3]: L. Franconeri et al., “Two-dose measles vaccine effectiveness remains high over time: A French observational study, 2017–2019,” Vaccine, vol. 41, no. 39, pp. 5797–5804, 2023\]
 
-[^2]: L. Franconeri et al., “Two-dose measles vaccine effectiveness remains high over time: A French observational study, 2017–2019,” Vaccine, vol. 41, no. 39, pp. 5797–5804, 2023\]
+Given persistent skepticism in some communities about the efficacy of vaccines, it is important to communicate the impact of vaccination on public health. In this project, we built on a visualization of the measles incidence in the USA published by the Wall Street Journal[^4] (@fig-wsj-on-poster). This visualization has garnered praise as "One of the more compelling data visualizations produced in recent years"[^5]. However, we contend that, despite its effectiveness in summarizing data, several aspects of the plot can be improved.
 
-Given persistent skepticism in some communities about the efficacy of vaccines, it is important to communicate the impact of vaccination on public health. In this project, we built on a visualization of the measles incidence in the USA published by the Wall Street Journal[^3] (@fig-wsj-on-poster). This visualization has garnered praise as "One of the more compelling data visualizations produced in recent years"[^4]. However, we contend that, despite its effectiveness in summarizing data, several aspects of the plot can be improved.
+[^4]: <https://graphics.wsj.com/infectious-diseases-and-vaccines/>
 
-[^3]: <https://graphics.wsj.com/infectious-diseases-and-vaccines/>
-
-[^4]: <https://www.mikelee.co/posts/2017-06-28-wsj-measles-vaccination-chart>
+[^5]: <https://www.mikelee.co/posts/2017-06-28-wsj-measles-vaccination-chart>
 
 # Previous Visualization
 
@@ -52,7 +157,7 @@ Given persistent skepticism in some communities about the efficacy of vaccines, 
 #|   Wall Street Journal."
 #| out-width: 100%
 
-include_graphics("images/wsj_cropped.png")
+include_graphics("images/original.png")
 ```
 
 # Strengths
@@ -85,13 +190,13 @@ include_graphics("images/infotip_color_change.png")
 
 ## Data
 
--   The cancer deaths by type chart was sourced from Our World In Data [^5]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
+-   The cancer deaths by type chart was sourced from Our World In Data [^6]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
 
--   Data source was gathered from IHME, Global Burden of Disease. (2024) [^6]
+-   Data source was gathered from IHME, Global Burden of Disease. (2024) [^7]
 
-[^5]: <https://ourworldindata.org/cancer>
+[^6]: <https://ourworldindata.org/cancer>
 
-[^6]: <https://vizhub.healthdata.org/gbd-results/>
+[^7]: <https://vizhub.healthdata.org/gbd-results/>
 
 ## Software
 
@@ -118,52 +223,33 @@ In our project, we employed Quarto along with the R programming language. We int
 
 # Input our own visualization code
 
-# 
-# g <-
-#   ggplot(measles, aes(year + 0.5, state, fill = incidence + 1e-6)) +
-#   geom_tile(width = 0.75, height = 0.75) +
-#   geom_vline(xintercept = 1963, colour = "darkblue", linewidth = 1) +
-#   annotate(
-#     "label",
-#     label = "Vaccine introduced",
-#     x = 1963,
-#     y = 60, # 54.5,
-#     vjust = 1,
-#     hjust = 0
-#   ) +
-#   labs(
-#     x = "Year",
-#     y = NULL,
-#     fill = "Mean weekly incidence\n(per 100,000) if known",
-#     title = "Measles in the USA by State",
-#     caption = "Source: Project Tycho"
-#   ) +
-#   scale_x_continuous(expand = expansion(0.01, 0)) +
-#   scale_y_discrete(limits = rev, position = "right") +
-#   scale_fill_fermenter(
-#     breaks = 10^(-2:3),
-#     labels = prettyNum,
-#     trans = "log10",
-#     palette = "Reds",
-#     direction = 1,
-#     na.value = "#ffffff00",
-#   ) +
-#   guides(
-#     y = guide_axis(n.dodge = 2),
-#     fill = guide_coloursteps(frame.colour = "gray", direction = "horizontal")
-#   ) +
-#   theme_minimal() +
-#   theme(
-#     legend.key.size = unit(0.75, "cm"),
-#     legend.title = element_text(hjust = 1, vjust = 1),
-#     legend.position = "top",
-#     panel.grid.major.x = element_line(colour = "gray", linewidth = 0.5),
-#     panel.grid.minor.x = element_line(colour = "gray", linewidth = 0.5),
-#     panel.grid.major.y = element_line(colour = "gray", linewidth = c(0, 0.5)),
-#     plot.title = element_text(hjust = 0.5)
-#   )
-# g
+p <- p + 
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 14),
+    axis.text.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    axis.title.x = element_text(size = 16),
+    plot.title = element_text(size = 20, face = "bold"),
+    plot.subtitle = element_text(size = 14), 
+    legend.title = element_text(size = 14, hjust = 0.5),
+    legend.text = element_text(size = 14),
+    legend.position = "top",
+    plot.caption = element_text(size = 12),
+    panel.grid.major.y = element_line(color = "white"),  # Darker major grid lines
+    panel.grid.major.x = element_line(color = "grey80"),  # Darker major grid lines
+    panel.grid.minor.x = element_line(color = "grey80"),  # Darker major grid lines
+  ) +
+  theme(
+    plot.subtitle = element_text(margin = margin(b = 10)),
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+    axis.title.x = element_text(margin = margin(t = 15, r = 10, b = 10, l = 10)),
+    axis.title.y = element_text(margin = margin(t = 10, r = 15, b = 10, l = 10)),
+    plot.caption = element_text(margin = margin(t = 10, r = 10, b = 10, l = 10)),
+    legend.title = element_blank()
+  )
 
+p
 ```
 
 # Further Suggestions for Interactivity
