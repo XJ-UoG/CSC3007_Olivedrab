@@ -89,28 +89,17 @@ cancer_data_long_base <- cancer_data_long |>
 
 # Introduction
 
-Cancer is a group of diseases defined by the rapid proliferation of abnormal cells. It is the second largest cause of death worldwide. These cells have the potential to severely compromise one's health by invading surrounding tissues and, in some instances, spreading through other parts of the human body through the blood and lymphatic systems. In 2019, the Global Burden of Disease study found that approximately 10 million deaths worldwide, or one in six deaths were attributable to cancer.[^1]
+Cancer is a group of diseases characterized by the rapid proliferation of abnormal cells that can invade surrounding tissues and potentially spread to other parts of the body through the blood and lymphatic systems. It remains the second largest cause of death worldwide. The Global Burden of Disease study found that approximately 10 million deaths in 2019 were attributable to cancer, accounting for one in six deaths globally.
 
-[^1]: National Cancer Institute. Cancer Statistics \[Internet\]. Bethesda, MD: National Cancer Institute; \[cited 2024 Jun 28\]
+Due to the significance of cancers on public health on a global scale, it is crucial to understand the differences in cancer mortality based on gender. Analyzing these differences can highlight disparities in cancer prevalence, which can aid in the diagnosis and treatments between men and women. This allows us to have informed targeted public health interventions and research priorities.
 
-Measles is a highly contagious viral infection that can lead to severe complications, including pneumonia, encephalitis, and death. The average number of secondary cases resulting from a single infected individual is estimated to be between 10 and 16,[^2] but vaccination is reported to be 97% effective at preventing measles[^3]. Consequently, the introduction of the vaccine in 1963 was followed by a significant decline in measles incidence in the USA.
-
-[^2]: National Cancer Institute. Cancer Statistics \[Internet\]. Bethesda, MD: National Cancer Institute; \[cited 2024 Jun 28\]
-
-[^3]: L. Franconeri et al., “Two-dose measles vaccine effectiveness remains high over time: A French observational study, 2017–2019,” Vaccine, vol. 41, no. 39, pp. 5797–5804, 2023\]
-
-Given persistent skepticism in some communities about the efficacy of vaccines, it is important to communicate the impact of vaccination on public health. In this project, we built on a visualization of the measles incidence in the USA published by the Wall Street Journal[^4] (@fig-wsj-on-poster). This visualization has garnered praise as "One of the more compelling data visualizations produced in recent years"[^5]. However, we contend that, despite its effectiveness in summarizing data, several aspects of the plot can be improved.
-
-[^4]: <https://graphics.wsj.com/infectious-diseases-and-vaccines/>
-
-[^5]: <https://www.mikelee.co/posts/2017-06-28-wsj-measles-vaccination-chart>
+This project aims to improve upon a visualization of global cancer mortality data published by Our World in Data. The original visualization provides an overview of the total number of deaths from different types of cancer each year, across all age groups and genders. Despite its effectiveness in summarizing data, we believe several aspects of the plot can be enhanced to provide clearer insights and more actionable information.
 
 # Previous Visualization
 
 ```{r}
-#| label: fig-wsj-on-poster
-#| fig-cap: "Measles incidence by state of the USA and year, published by the
-#|   Wall Street Journal."
+#| label: fig-owd-on-poster
+#| fig-cap: "Cancer deaths by type, World, 2019, published by Our World in Data"
 #| out-width: 98%
 
 include_graphics("images/original_visualization.png")
@@ -137,13 +126,13 @@ include_graphics("images/original_visualization.png")
 
 ## Data
 
--   The cancer deaths by type chart was sourced from Our World In Data [^6]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
+-   The cancer deaths by type chart was sourced from Our World In Data [^1]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
 
--   Data source was gathered from IHME, Global Burden of Disease. (2024) [^7]
+-   Data source was gathered from IHME, Global Burden of Disease. (2024) [^2]
 
-[^6]: <https://ourworldindata.org/cancer>
+[^1]: <https://ourworldindata.org/cancer>
 
-[^7]: <https://vizhub.healthdata.org/gbd-results/>
+[^2]: <https://vizhub.healthdata.org/gbd-results/>
 
 ## Software
 
@@ -162,8 +151,7 @@ Data Visualization: *knitr*: integrates R code and output, affects how figures a
 
 ```{r}
 #| label: fig-ggplot
-#| fig-cap: "Revised visualization of measles incidence by state of the USA and
-#|  year."
+#| fig-cap: "Revised visualization of Cancer Deaths by Gender in 2019."
 #| fig-width: 6.5
 #| fig-height: 5.8
 #| out-width: 100%
