@@ -91,9 +91,9 @@ cancer_data_long_base <- cancer_data_long |>
 
 Cancer is a group of diseases characterized by the rapid proliferation of abnormal cells that can invade surrounding tissues and potentially spread to other parts of the body through the blood and lymphatic systems. It remains the second largest cause of death worldwide. The Global Burden of Disease study found that approximately 10 million deaths in 2019 were attributable to cancer, accounting for one in six deaths globally.
 
-Due to the significance of cancers on public health on a global scale, it is crucial to understand the differences in cancer mortality based on gender. Analyzing these differences can highlight disparities in cancer prevalence, which can aid in the diagnosis and treatments between men and women. This allows us to have informed targeted public health interventions and research priorities.
+Due to the significance of cancers on public health on a global scale, it is crucial to understand the differences in cancer mortality based on gender. Analysing these differences can highlight disparities in cancer prevalence, which can aid in the diagnosis and treatments between men and women. This allows us to have informed targeted public health interventions and research priorities.
 
-This project aims to improve upon a visualization of global cancer mortality data published by Our World in Data. The original visualization provides an overview of the total number of deaths from different types of cancer each year, across all age groups and genders. Despite its effectiveness in summarizing data, we believe several aspects of the plot can be enhanced to provide clearer insights and more actionable information.
+This project aims to improve upon a visualization of global cancer mortality data published by Our World in Data. The original visualization provides an detailed overview of the total number of deaths from different types of cancer each year, across all age groups and genders. Despite being a comprehensive visualisation of the data, we believe several aspects of the plot can be enhanced to provide clearer insights and more actionable information.
 
 # Previous Visualization
 
@@ -110,6 +110,15 @@ include_graphics("images/original_visualization.png")
 -   Straightforward and clear representation of data, providing a clear visual indication of the most deadly cancers
 -   Horizontal bar chart format makes it easy to compare the number of deaths caused by different types of cancer, viewers quickly identify which cancers have the highest and lowest mortality rates.
 -   Exact figures are alongside the bars providing precise data which is useful for detailed analysis and comparison
+
+```{r}
+#| label: fig-strengths-on-poster
+#| fig-cap: "Strengths of Previous Visualization"
+#| out-width: 93%
+#| fig-align: center
+
+include_graphics("images/strengthsChart.png")
+```
 
 # Suggested Improvements
 
@@ -136,16 +145,15 @@ include_graphics("images/original_visualization.png")
 
 ## Software
 
-In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:
-\
+In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:\
 - Data Import: *readr*: reads csv files into R
 
-- Data Manipulation & Tidying: *dplyr*: filters, selects and arranges data, *tidyr*: reshapes data frames to a tidy format
+-   Data Manipulation & Tidying: *dplyr*: filters, selects and arranges data, *tidyr*: reshapes data frames to a tidy format
 
-- Data Visualization: *knitr*: integrates R code and output, affects how figures are displayed in the final document, *ggplot2*: creates graphics based on Grammer of Graphics, *ggnewscale*: applies multiple colours and fill scales within plots, *RColorBrewer*: provides addition colour palettes for graphics, *scales*: handles various aspects of scaling data
+-   Data Visualization: *knitr*: integrates R code and output, affects how figures are displayed in the final document, *ggplot2*: creates graphics based on Grammer of Graphics, *ggnewscale*: applies multiple colours and fill scales within plots, *RColorBrewer*: provides addition colour palettes for graphics, *scales*: handles various aspects of scaling data
 
 ```{=typst}
-#v(2em)
+#v(10em)
 ```
 
 # Improved Visualization

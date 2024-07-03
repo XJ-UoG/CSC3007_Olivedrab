@@ -111,6 +111,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="loading-the-dataset" class="level1">
+<h1>Loading the Dataset</h1>
+<p>We loaded and displayed the first few rows to understand the structure. This dataset contains information on various types of cancers, the number of deaths, and demographic details.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>cancer_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"cancer-dataset.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -139,17 +143,33 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 #   lower &lt;dbl&gt;</code></pre>
 </div>
 </div>
+</section>
+<section id="start-of-pre-processing" class="level1">
+<h1>Start of Pre-Processing:</h1>
+<section id="data-filtering" class="level2">
+<h2 class="anchored" data-anchor-id="data-filtering">Data Filtering</h2>
+<ul>
+<li><em>Filtered Year and Measure: We focus on the data for the year 2019 and select rows where the measure is ‘Deaths’ to analyze the mortality rates.</em></li>
+<li><em>Selected Relevant Columns: We retain only the columns that are necessary for our analysis: cause_name (type of cancer), sex_name (gender), and val (number of deaths).</em></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data for the year 2019 and measure 'Deaths'</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cancer_data_2019 <span class="ot">&lt;-</span> cancer_data <span class="sc">%&gt;%</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2019</span>, measure_name <span class="sc">==</span> <span class="st">"Deaths"</span>, age_name <span class="sc">==</span> <span class="st">"All ages"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(cause_name, sex_name, val)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>We then removed rows with “Total cancers” and “Total excl. non-melanoma” as these are aggregates and not needed for our detailed analysis.</p>
+<p>(Since they are not specific types of cancer, allowing us to ensure we focus on individual cancer types)</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove "Total cancers" and "Total excl. non-melanoma" from the dataset</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>cancer_data_2019 <span class="ot">&lt;-</span> cancer_data_2019 <span class="sc">%&gt;%</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(<span class="sc">!</span>cause_name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Total cancers"</span>, <span class="st">"Total Cancers excluding Non-melanoma skin cancer"</span>, <span class="st">"Other malignant neoplasms"</span>, <span class="st">"Other neoplasms"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="grouping-cancer-types" class="level2">
+<h2 class="anchored" data-anchor-id="grouping-cancer-types">Grouping Cancer Types</h2>
+<p>To simplify the visualization, we grouped similar types of cancer together and created a new column cause_group for these groups. This step helps in reducing the complexity of the dataset and makes the visualization more interpretable for the user hopefyully.</p>
+<p>(For example, Breast cancer, Cervical cancer, Uterine cancer, and a few others are grouped under Reproductive system.)</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define new cancer groups</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cancer_data_2019 <span class="ot">&lt;-</span> cancer_data_2019 <span class="sc">%&gt;%</span></span>
@@ -175,6 +195,16 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 <span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> cause_name</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="summarizing-and-reshaping-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="summarizing-and-reshaping-the-data">Summarizing and Reshaping the Data</h2>
+<p>We group using the new cancer groups and sex, and sum the values. Pivoting the data to have separate columns for male and female deaths. We also round the values to two decimal places for better readability.</p>
+<ul>
+<li><em>Summarize Values: Summed the values for each cancer group and gender to get the total number of deaths.</em></li>
+<li><em>Pivot Data: Reshaped the data to have separate columns for male and female deaths.</em></li>
+<li><em>Round Values: Rounded the number of deaths to 2 decimal places for better readability.</em></li>
+<li><em>Adjust Female Deaths: Inverted the values for female deaths to create a bi-directional bar chart where male and female deaths are displayed on opposite sides of the y-axis.</em></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by new cancer groups and sum the values</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>cancer_data_grouped <span class="ot">&lt;-</span> cancer_data_2019 <span class="sc">|&gt;</span></span>
@@ -194,8 +224,18 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>cancer_data_long_base <span class="ot">&lt;-</span> cancer_data_long <span class="sc">|&gt;</span></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Female =</span> <span class="sc">-</span>Female)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="end-of-preprocessing" class="level2">
-<h2 class="anchored" data-anchor-id="end-of-preprocessing">End of Preprocessing</h2>
+</section>
+<section id="end-of-pre-processing" class="level2">
+<h2 class="anchored" data-anchor-id="end-of-pre-processing">~End of Pre-processing~</h2>
+</section>
+</section>
+<section id="base-plot" class="level1">
+<h1>Base Plot</h1>
+<p>We created the base plot using ggplot2, with separate bars for male and female deaths.</p>
+<ul>
+<li><em>Horizontal bar chart where the x-axis represents cancer types and the y-axis represents the number of deaths.</em></li>
+<li><em>Male deaths are shown on the right and female deaths on the left.</em></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base Plot</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Geoms</span></span>
@@ -214,6 +254,9 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 </div>
 </div>
 </div>
+<section id="plot-annotation" class="level2">
+<h2 class="anchored" data-anchor-id="plot-annotation">Plot Annotation</h2>
+<p>We add annotations to the plot, including titles, subtitles, and axis labels. Providing context and information.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Annotation</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -236,6 +279,16 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 </div>
 </div>
 </div>
+</section>
+<section id="scales-and-guides" class="level2">
+<h2 class="anchored" data-anchor-id="scales-and-guides">Scales and Guides</h2>
+<p>Adjust the scales and guides to ensure the plot is properly scaled and labeled.</p>
+<ul>
+<li><p><em>Set y-axis limits to 115% of the maximum value to ensure that the bars fit well within the plot area.</em></p></li>
+<li><p><em>The breaks on the y-axis are set at intervals of 500,000 deaths.</em></p></li>
+<li><p><em>Labels are formatted to show absolute values with commas as thousand separators.</em><br>
+</p></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scales + Guides</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -267,6 +320,14 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 </div>
 </div>
 </div>
+</section>
+<section id="data-annotations" class="level2">
+<h2 class="anchored" data-anchor-id="data-annotations">Data Annotations</h2>
+<p>We added data annotations to the plot to display the exact number of deaths.</p>
+<ul>
+<li><em>Used geom_label to add labels showing the exact number of deaths for both males and females.</em></li>
+<li><em>Labels are shifted slightly to the left for females and to the right for males to avoid overlapping with the bars.</em></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data Annotations</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -297,6 +358,16 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 </div>
 </div>
 </div>
+</section>
+<section id="theme-customization" class="level2">
+<h2 class="anchored" data-anchor-id="theme-customization">Theme Customization</h2>
+<p>Utilized a custom plot theme to improve its appearance.</p>
+<ul>
+<li><p><em>Minimal Theme: Used theme_minimal for a clean look.</em></p></li>
+<li><p><em>Text Customization: Increased the size of axis texts, titles, plot titles, and legend texts for better readability.</em></p></li>
+<li><p><em>Grid Lines: Customized the grid lines to make the plot clearer.</em></p></li>
+<li><p><em>Margins: Adjusted the margins to ensure that there is adequate space around the plot elements.</em></p></li>
+</ul>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Theme</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -341,6 +412,7 @@ dbl (10): measure_id, location_id, sex_id, age_id, cause_id, metric_id, year...
 </section>
 <section id="experimental-features-below" class="level2">
 <h2 class="anchored" data-anchor-id="experimental-features-below">Experimental features below</h2>
+<p>Not gonna elaborate on this yet</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # </span><span class="al">TODO</span><span class="co">: Create the sequential color scheme for both female and male (reference the picture sent in the group) DONE </span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
