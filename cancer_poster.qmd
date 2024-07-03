@@ -213,8 +213,8 @@ p <- p +
 p <- p + 
   theme_minimal() +
   theme(
-    axis.text.y = element_text(size = 6),
-    axis.text.x = element_text(size = 6),
+    axis.text.y = element_text(size = 6, color = "black"),
+    axis.text.x = element_text(size = 6, color = "black"),
     axis.title.y = element_text(size = 6),
     axis.title.x = element_text(size = 6),
     plot.title = element_text(size = 12, face = "bold"),
@@ -224,9 +224,9 @@ p <- p +
     legend.key.size = unit(0.4, "cm"),
     legend.position = "top",
     plot.caption = element_text(size = 6),
-    panel.grid.major.y = element_line(color = "white"),  # Darker major grid lines
-    panel.grid.major.x = element_line(color = "grey80"),  # Darker major grid lines
-    panel.grid.minor.x = element_line(color = "grey80"),  # Darker major grid lines
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color = "grey60"),
+    panel.grid.minor.x = element_line(color = "grey60"),
   ) +
   theme(
     # plot.subtitle = element_text(margin = margin(b = 10)),

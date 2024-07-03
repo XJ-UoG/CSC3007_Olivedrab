@@ -264,7 +264,7 @@ p <- p +
     legend.text = element_text(size = 14),
     legend.position = "top",
     plot.caption = element_text(size = 12),
-    panel.grid.major.y = element_line(color = "white"),  # Darker major grid lines
+    panel.grid.major.y = element_blank(),
     panel.grid.major.x = element_line(color = "grey80"),  # Darker major grid lines
     panel.grid.minor.x = element_line(color = "grey80"),  # Darker major grid lines
   ) +
