@@ -123,13 +123,13 @@ include_graphics("images/strengthsChart.png")
 # Suggested Improvements
 
 1.  *Enhance informativeness* by adding demographic comparisons, such as cancer death rates by gender.
-2.  Group similar cancer types together for *improved clarity* in the cancer death statistics.
+2.  Group similar cancer types together to make the statistics more *accessible* and easier to understand for a general audience.
 3.  Add in labels to both the x and y-axis to *enhance the interpretability*.
 4.  Provide exact whole numbers instead of estimates to *enhance comprehension and clarity*.
-5.  Incorporate a straightforward and *visually appealing* colour scheme to *improve the chart’s appearance*.
+5.  Utilize distinct colors for each gender to *enhance clarity and visual differentiation*.
 6.  Include a colour legend to explain the meaning of the colours used.
 7.  Sort the values in descending order according to the total deaths to *highlight the most critical cancer types*.
-8.  Include grid lines at *meaningful intervals*, such as every 500,000, considering the value range extends up to a million.
+8.  Include grid lines at *meaningful intervals*, such as every 500,000, considering the value range extends to over 1.5 million.
 
 # Implementation
 
