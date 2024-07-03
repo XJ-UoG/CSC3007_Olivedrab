@@ -123,7 +123,7 @@ include_graphics("images/strengthsChart.png")
 # Suggested Improvements
 
 1.  *Enhance informativeness* by adding demographic comparisons, such as cancer death rates by gender.
-2.  Group similar cancer types together to make the statistics more *accessible* and easier to understand for a general audience.
+2.  Group similar cancer types together to make the statistics more *accessible* and easier to understand for a general audience. [^1]
 3.  Add in labels to both the x and y-axis to *enhance the interpretability*.
 4.  Provide exact whole numbers instead of estimates to *enhance comprehension and clarity*.
 5.  Utilize distinct colors for each gender to *enhance clarity and visual differentiation*.
@@ -135,13 +135,15 @@ include_graphics("images/strengthsChart.png")
 
 ## Data
 
--   The cancer deaths by type chart was sourced from Our World In Data [^1]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
+-   The cancer deaths by type chart was sourced from Our World In Data [^2]. During data preparation, unnecessary columns were removed and cancer names were abbreviated for better visualization. We rounded death values for consistency and grouped cancer types by gender, allowing us to create a bi-directional bar chart for comparing different types of cancer deaths across genders.
 
--   Data source was gathered from IHME, Global Burden of Disease. (2024) [^2]
+-   Data source was gathered from IHME, Global Burden of Disease. (2024) [^3]
 
-[^1]: <https://ourworldindata.org/cancer>
+[^1]: <https://www.gleneagles.com.sg/conditions-treatments/cancer-care/cancer-types>
 
-[^2]: <https://vizhub.healthdata.org/gbd-results/>
+[^2]: <https://ourworldindata.org/cancer>
+
+[^3]: <https://vizhub.healthdata.org/gbd-results/>
 
 ## Software
 
@@ -155,7 +157,6 @@ In our project, we employed Quarto along with the R programming language. We int
 ```{=typst}
 #v(10em)
 ```
-
 # Improved Visualization
 
 ```{r}
