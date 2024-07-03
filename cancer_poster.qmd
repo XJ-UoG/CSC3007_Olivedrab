@@ -7,7 +7,7 @@ format:
     departments: "CSC3007 P1"
     institution-logo: "./images/sit-logo.png"
     footer-text: "Information Visualization 2024"
-    footer-emails: "michael.gastner@singaporetech.edu.sg"
+    footer-emails: "Team Olivedrab"
 execute:
   echo: false
 knitr:
@@ -114,8 +114,8 @@ include_graphics("images/original_visualization.png")
 # Suggested Improvements
 
 1.  *Enhance informativeness* by adding demographic comparisons, such as cancer death rates by gender.
-2.  *Reduce cluttering and improve understanding* on cancer death statistics by grouping similar cancer types together.
-3.  Add in labels to both the x and y-axis for *improved clarity*.
+2.  Group similar cancer types together for *improved clarity* in the cancer death statistics.
+3.  Add in labels to both the x and y-axis to *enhance the interpretability*.
 4.  Provide exact whole numbers instead of estimates to *enhance comprehension and clarity*.
 5.  Incorporate a straightforward and *visually appealing* colour scheme to *improve the chart’s appearance*.
 6.  Include a colour legend to explain the meaning of the colours used.
@@ -136,17 +136,18 @@ include_graphics("images/original_visualization.png")
 
 ## Software
 
-In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:\
+In our project, we employed Quarto along with the R programming language. We integrated various third-party libraries categorized by their respective purposes:
 \
-Data Import: *readr*: reads csv files into R\
-\
-Data Manipulation & Tidying: *dplyr*: filters, selects and arranges data, *tidyr*: reshapes data frames to a tidy format\
-\
-Data Visualization: *knitr*: integrates R code and output, affects how figures are displayed in the final document, *ggplot2*: creates graphics based on Grammer of Graphics, *ggnewscale*: applies multiple colours and fill scales within plots, *RColorBrewer*: provides addition colour palettes for graphics, *scales*: handles various aspects of scaling data
+- Data Import: *readr*: reads csv files into R
+
+- Data Manipulation & Tidying: *dplyr*: filters, selects and arranges data, *tidyr*: reshapes data frames to a tidy format
+
+- Data Visualization: *knitr*: integrates R code and output, affects how figures are displayed in the final document, *ggplot2*: creates graphics based on Grammer of Graphics, *ggnewscale*: applies multiple colours and fill scales within plots, *RColorBrewer*: provides addition colour palettes for graphics, *scales*: handles various aspects of scaling data
 
 ```{=typst}
 #v(2em)
 ```
+
 # Improved Visualization
 
 ```{r}
