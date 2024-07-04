@@ -1,11 +1,13 @@
 ---
-title: "Main_Visualization: Cancer Deaths by Type and Gender (World, 2019)"
+title: "Cancer Deaths by Type and Gender (World, 2019)"
+author: "Team Olivedrab"
+date: "2024-07-04"
 format: html
 editor: visual
 ---
 
 ```{r setup, include=FALSE}
-# Set global chunk options
+#| label: Set global chunk options
 knitr::opts_chunk$set(fig.align = "center", fig.width = 12, fig.height = 8)
 ```
 
@@ -19,7 +21,6 @@ The code below requires the following packages:
 #| label: required-packages
 #| warning: false
 
-# Load necessary libraries
 library(knitr)
 library(ggplot2)
 library(dplyr)
@@ -49,7 +50,8 @@ head(cancer_data)
 -   *Selected Relevant Columns: We retain only the columns that are necessary for our analysis: cause_name (type of cancer), sex_name (gender), and val (number of deaths).*
 
 ```{r}
-# Filter data for the year 2019 and measure 'Deaths'
+#| label: Filter data for the year 2019 and measure 'Deaths'
+
 cancer_data_2019 <- cancer_data %>%
   filter(year == 2019, measure_name == "Deaths", age_name == "All ages") %>%
   select(cause_name, sex_name, val)
@@ -60,9 +62,10 @@ We then removed rows with "Total cancers" and "Total excl. non-melanoma" as thes
 (Since they are not specific types of cancer, allowing us to ensure we focus on individual cancer types)
 
 ```{r}
-# Remove "Total cancers" and "Total excl. non-melanoma" from the dataset
+#| label: Remove "Total cancers" and "Total excl. non-melanoma" from the dataset
+
 cancer_data_2019 <- cancer_data_2019 %>%
-      filter(!cause_name %in% c("Total cancers", "Total Cancers excluding Non-melanoma skin cancer", "Other malignant neoplasms", "Other neoplasms"))
+  filter(!cause_name %in% c("Total cancers", "Total Cancers excluding Non-melanoma skin cancer", "Other malignant neoplasms", "Other neoplasms"))
 ```
 
 ## Grouping Cancer Types
@@ -72,7 +75,8 @@ To simplify the visualization, we grouped similar types of cancer together and c
 (For example, Breast cancer, Cervical cancer, Uterine cancer, and a few others are grouped under Reproductive system.)
 
 ```{r}
-# Define new cancer groups
+#| label: Define new cancer groups
+
 cancer_data_2019 <- cancer_data_2019 %>%
   mutate(cause_group = case_when(
     cause_name %in% c("Soft tissue and other extraosseous sarcomas") ~ "Soft tissue",
@@ -95,8 +99,6 @@ cancer_data_2019 <- cancer_data_2019 %>%
     cause_name %in% c("Eye cancer") ~ "Eye",
     TRUE ~ cause_name
   ))
-
-
 ```
 
 ## Summarizing and Reshaping the Data
@@ -109,15 +111,18 @@ We group using the new cancer groups and sex, and sum the values. Pivoting the d
 -   *Adjust Female Deaths: Inverted the values for female deaths to create a bi-directional bar chart where male and female deaths are displayed on opposite sides of the y-axis.*
 
 ```{r}
-# Group by new cancer groups and sum the values
+#| label: Group by new cancer groups and sum the values
+
 cancer_data_grouped <- cancer_data_2019 |>
   group_by(cause_group, sex_name) |>
-  summarise(val = sum(val, na.rm = TRUE), .groups = 'drop')
+  summarise(val = sum(val, na.rm = TRUE), .groups = "drop")
 ```
 
 ```{r}
+#| label: Pivot the data, round the values, flip for bi-directional effect
+
 # Pivot the data
-cancer_data_long <- cancer_data_grouped|>
+cancer_data_long <- cancer_data_grouped |>
   pivot_wider(names_from = sex_name, values_from = val, values_fill = list(val = 0))
 
 # Round the values to 2 decimal places
@@ -131,7 +136,7 @@ cancer_data_long_base <- cancer_data_long |>
 
 ## \~End of Pre-processing\~
 
-# Base Plot
+# Plot Visualization
 
 We created the base plot using ggplot2, with separate bars for male and female deaths.
 
@@ -139,8 +144,7 @@ We created the base plot using ggplot2, with separate bars for male and female d
 -   *Male deaths are shown on the right and female deaths on the left.*
 
 ```{r}
-# Base Plot
-# Geoms
+#| label: Geoms
 
 p <- ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
   geom_bar(aes(y = Male, fill = "Male"), stat = "identity", width = 0.9) +
@@ -155,7 +159,7 @@ p
 We add annotations to the plot, including titles, subtitles, and axis labels. Providing context and information.
 
 ```{r}
-# Plot Annotation
+#| label: Plot Annotation
 
 p <- p +
   labs(
@@ -181,7 +185,7 @@ Adjust the scales and guides to ensure the plot is properly scaled and labeled.
 -   *Labels are formatted to show absolute values with commas as thousand separators.*\
 
 ```{r}
-# Scales + Guides
+#| label: Scales + Guides
 
 max_value <- max(abs(cancer_data_long_base$Male), abs(cancer_data_long_base$Female))
 
@@ -191,16 +195,8 @@ p <- p +
   scale_y_continuous(
     limits = c(-limit, limit),
     breaks = seq(-1.5e6, 1.5e6, by = 5e5),
-    labels = function(x) scales::comma(abs(x)) 
+    labels = function(x) scales::comma(abs(x))
   )
-
-#p <- p +
-#  scale_y_continuous(
-#    limits = c(-limit, limit),
-#    trans = pseudo_log_trans(base = 10, sigma = 1e3),  # Adjust sigma for more gradual scaling
-#    breaks = c(-10^6, -10^5, -10^4, 0, 10^4, 10^5, 10^6),  # Logarithmic breaks
-#    labels = function(x) scales::comma(abs(x)) 
-#  )
 
 p
 ```
@@ -210,27 +206,28 @@ p
 We added data annotations to the plot to display the exact number of deaths.
 
 -   *Used geom_label to add labels showing the exact number of deaths for both males and females.*
--   *Labels are shifted slightly to the left for females and to the right for males to avoid overlapping with the bars.*
+-   *Labels are nudged slightly to the left for females and to the right for males to avoid overlapping with the bars.*
+-   *Labels have a white border to prevent overlapping with grid lines.*
 
 ```{r}
-# Data Annotations
+#| label: Data Annotations
 
 p <- p +
   geom_label(
     aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")),
-    position = position_nudge(x = -0.05, y = 0),  # Nudge slightly to the left
-    hjust = 1.1, 
+    position = position_nudge(x = -0.05, y = 0), # Nudge slightly to the left
+    hjust = 1.1,
     size = 4,
     fill = "white",
-    label.size = 0 
+    label.size = 0
   ) +
   geom_label(
     aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")),
-    position = position_nudge(x = 0.05, y = 0),  # Nudge slightly to the right
+    position = position_nudge(x = 0.05, y = 0), # Nudge slightly to the right
     hjust = -0.1,
     size = 4,
     fill = "white",
-    label.size = 0 
+    label.size = 0
   )
 
 p
@@ -249,9 +246,9 @@ Utilized a custom plot theme to improve its appearance.
 -   *Margins: Adjusted the margins to ensure that there is adequate space around the plot elements.*
 
 ```{r}
-# Theme
+#| label: Theme
 
-p <- p + 
+p <- p +
   theme_minimal() +
   theme(
     axis.text.y = element_text(size = 14),
@@ -259,14 +256,14 @@ p <- p +
     axis.title.y = element_text(size = 16),
     axis.title.x = element_text(size = 16),
     plot.title = element_text(size = 20, face = "bold"),
-    plot.subtitle = element_text(size = 14), 
+    plot.subtitle = element_text(size = 14),
     legend.title = element_text(size = 14, hjust = 0.5),
     legend.text = element_text(size = 14),
     legend.position = "top",
     plot.caption = element_text(size = 12),
     panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(color = "grey80"),  # Darker major grid lines
-    panel.grid.minor.x = element_line(color = "grey80"),  # Darker major grid lines
+    panel.grid.major.x = element_line(color = "grey80"), # Darker major grid lines
+    panel.grid.minor.x = element_line(color = "grey80"), # Darker major grid lines
   ) +
   theme(
     plot.subtitle = element_text(margin = margin(b = 10)),
@@ -278,44 +275,6 @@ p <- p +
   )
 
 p
-```
-
-```{r}
-# Color Schemes
-
-
-```
-
-## Experimental features below
-
-Not gonna elaborate on this yet
-
-```{r}
-
-# # TODO: Create the sequential color scheme for both female and male (reference the picture sent in the group) DONE 
-
-ggplot(cancer_data_long_base, aes(x = reorder(cause_group, abs(Female) + Male))) +
-  geom_bar(aes(y = Male, fill = Male), stat = "identity", width = 0.8) +
-  scale_fill_gradientn(name = "Male Deaths", colors = brewer.pal(9, "Blues")) +
-  new_scale_fill() +
-  geom_bar(aes(y = Female, fill = abs(Female)), stat = "identity", width = 0.8) +
-  scale_fill_gradientn(name = "Female Deaths", colors = brewer.pal(9, "Reds")) +
-  coord_flip() +
-  scale_y_continuous(labels = abs) +
-  labs(title = "Cancer Deaths by Type and Gender, World, 2019",
-       x = "Cancer Type",
-       y = "Number of Deaths") +
-  theme_minimal() +
-  theme(axis.text.y = element_text(size = 10),
-        axis.title.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        plot.title = element_text(size = 16, face = "bold"),
-        legend.position = "top") +
-  geom_text(aes(y = Female, label = formatC(abs(Female), format = "d", big.mark = ",")), 
-            position = position_stack(vjust = 0.5), hjust = 1.1, size = 3, color = "red") +
-  geom_text(aes(y = Male, label = formatC(Male, format = "d", big.mark = ",")), 
-            position = position_stack(vjust = 0.5), hjust = -0.1, size = 3, color = "blue")
-
 ```
 
 Footnote links for reference: https://training.seer.cancer.gov/disease/categories/classification.html https://www.cancer.gov/types https://www.cancerresearchuk.org/health-professional/cancer-statistics/statistics-by-cancer-type https://colorbrewer2.org/#type=sequential&scheme=Reds&n=3
